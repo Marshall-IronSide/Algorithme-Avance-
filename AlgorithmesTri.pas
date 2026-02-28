@@ -1,0 +1,222 @@
+program AlgorithmesTri;
+uses wincrt;
+
+const
+  TAILLE_MAX = 10;
+
+type
+  Tableau = array[1..TAILLE_MAX] of integer;
+
+var
+  choix: integer;
+  T: Tableau;
+  taille: integer;
+
+{ Procédure pour afficher un tableau }
+procedure AfficherTableau(var T: Tableau; n: integer);
+var
+  i: integer;
+begin
+  writeln;
+  write('Tableau trié : ');
+  for i := 1 to n do
+    write(T[i], ' ');
+  writeln;
+  writeln;
+end;
+
+{ Procédure pour remplir le tableau }
+procedure RemplirTableau(var T: Tableau; var n: integer);
+var
+  i: integer;
+begin
+  writeln('Combien d''elements voulez-vous trier ? (max ', TAILLE_MAX, ')');
+  readln(n);
+  
+  for i := 1 to n do
+  begin
+    writeln('Element ', i, ' : ');
+    readln(T[i]);
+  end;
+end;
+
+{ TRI PAR INSERTION }
+procedure TriParInsertion(var T: Tableau; n: integer);
+var
+  i, j, tmp: integer;
+begin
+  for i := 2 to n do
+  begin
+    j := i;
+    while (j > 1) and (T[j] < T[j-1]) do
+    begin
+      tmp := T[j];
+      T[j] := T[j-1];
+      T[j-1] := tmp;
+      j := j - 1;
+    end;
+  end;
+end;
+
+{ TRI PAR BULLES (Bubble Sort) avec technique du FLAG }
+procedure TriParBulles(var T: Tableau; n: integer);
+var
+  i, j, tmp: integer;
+  echange: boolean;
+begin
+  i := 1;
+  while i < n do
+  begin
+    echange := false; { Flag initialisé à false }
+    for j := 1 to n - i do
+    begin
+      if T[j] > T[j + 1] then
+      begin
+        { Échange des éléments }
+        tmp := T[j];
+        T[j] := T[j + 1];
+        T[j + 1] := tmp;
+        echange := true; { Flag activé si un échange a lieu }
+      end;
+    end;
+    { Si aucun échange : tableau déjà trié, on arrête }
+    if not echange then
+      i := n
+    else
+      i := i + 1;
+  end;
+end;
+
+{ TRI PAR SÉLECTION (Selection Sort) }
+procedure TriParSelection(var T: Tableau; n: integer);
+var
+  i, j, minIndex, tmp: integer;
+begin
+  for i := 1 to n - 1 do
+  begin
+    minIndex := i;
+    for j := i + 1 to n do
+    begin
+      if T[j] < T[minIndex] then
+        minIndex := j;
+    end;
+    { Échanger le minimum trouvé avec l'élément courant }
+    if minIndex <> i then
+    begin
+      tmp := T[i];
+      T[i] := T[minIndex];
+      T[minIndex] := tmp;
+    end;
+  end;
+end;
+
+{ TRI RAPIDE (QuickSort) - Fonction auxiliaire pour partitionner }
+function Partitionner(var T: Tableau; debut, fin: integer): integer;
+var
+  pivot, i, j, tmp: integer;
+begin
+  pivot := T[fin];
+  i := debut - 1;
+  
+  for j := debut to fin - 1 do
+  begin
+    if T[j] < pivot then
+    begin
+      i := i + 1;
+      tmp := T[i];
+      T[i] := T[j];
+      T[j] := tmp;
+    end;
+  end;
+  
+  tmp := T[i + 1];
+  T[i + 1] := T[fin];
+  T[fin] := tmp;
+  
+  Partitionner := i + 1;
+end;
+
+{ TRI RAPIDE (QuickSort) - Fonction récursive principale }
+procedure TriRapideRec(var T: Tableau; debut, fin: integer);
+var
+  pi: integer;
+begin
+  if debut < fin then
+  begin
+    pi := Partitionner(T, debut, fin);
+    TriRapideRec(T, debut, pi - 1);
+    TriRapideRec(T, pi + 1, fin);
+  end;
+end;
+
+procedure TriRapide(var T: Tableau; n: integer);
+begin
+  TriRapideRec(T, 1, n);
+end;
+
+{ MENU PRINCIPAL }
+procedure AfficherMenu;
+begin
+  writeln('========================================');
+  writeln('     ALGORITHMES DE TRI DE TABLEAU');
+  writeln('========================================');
+  writeln('1. Tri par insertion');
+  writeln('2. Tri par bulles');
+  writeln('3. Tri par sélection');
+  writeln('4. Tri rapide (QuickSort)');
+  writeln('0. Quitter');
+  writeln('========================================');
+  write('Choisissez un tri (0-4) : ');
+end;
+
+begin
+  repeat
+    AfficherMenu;
+    readln(choix);
+    
+    case choix of
+      1:
+      begin
+        writeln;
+        writeln('>>> TRI PAR INSERTION <<<');
+        RemplirTableau(T, taille);
+        TriParInsertion(T, taille);
+        AfficherTableau(T, taille);
+      end;
+      
+      2:
+      begin
+        writeln;
+        writeln('>>> TRI PAR BULLES <<<');
+        RemplirTableau(T, taille);
+        TriParBulles(T, taille);
+        AfficherTableau(T, taille);
+      end;
+      
+      3:
+      begin
+        writeln;
+        writeln('>>> TRI PAR SÉLECTION <<<');
+        RemplirTableau(T, taille);
+        TriParSelection(T, taille);
+        AfficherTableau(T, taille);
+      end;
+      
+      4:
+      begin
+        writeln;
+        writeln('>>> TRI RAPIDE (QuickSort) <<<');
+        RemplirTableau(T, taille);
+        TriRapide(T, taille);
+        AfficherTableau(T, taille);
+      end;
+      
+      0:
+        writeln('Fin du programme.');
+      
+      else
+        writeln('Choix invalide!');
+    end;
+    
+  until choix = 0;
+end.
