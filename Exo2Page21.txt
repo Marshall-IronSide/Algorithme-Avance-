@@ -1,0 +1,6 @@
+// Résultat de l'algorithme donné
+// Tableau X[0..1, 0..2] rempli avec des valeurs croissantes
+// Affichage ligne par ligne
+
+1 2 3
+4 5 6

@@ -1,0 +1,17 @@
+Variables
+    Tableau : tableau[1..6, 1..13] d'entiers
+    i, j : entiers
+Début
+    Pour i de 1 à 6 Faire
+        Pour j de 1 à 13 Faire
+            Tableau[i, j] ← 0
+        FinPour
+    FinPour
+    // Affichage du tableau
+    Pour i de 1 à 6 Faire
+        Pour j de 1 à 13 Faire
+            Ecrire Tableau[i, j], " "
+        FinPour
+        Ecrire "\n"
+    FinPour
+Fin

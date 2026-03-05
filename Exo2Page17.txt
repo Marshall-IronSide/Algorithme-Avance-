@@ -1,0 +1,40 @@
+// Tri par sélection décroissant
+Variables
+    Tableau : tableau d'entiers
+    N, i, j, maxPos, tmp : entiers
+Début
+    Ecrire "Combien de valeurs voulez-vous saisir ?"
+    Lire N
+    Pour i de 0 à N-1 Faire
+        Ecrire "Entrez la valeur ", i+1
+        Lire Tableau[i]
+    FinPour
+
+// Tri à bulles décroissant
+Variables
+    Tableau : tableau d'entiers
+    N, i, j, tmp : entiers
+Début
+    Ecrire "Combien de valeurs voulez-vous saisir ?"
+    Lire N
+    Pour i de 0 à N-1 Faire
+        Ecrire "Entrez la valeur ", i+1
+        Lire Tableau[i]
+    FinPour
+
+    // Tri à bulles
+    Pour i de 0 à N-2 Faire
+        Pour j de 0 à N-2-i Faire
+            Si Tableau[j] < Tableau[j+1] Alors
+                tmp ← Tableau[j]
+                Tableau[j] ← Tableau[j+1]
+                Tableau[j+1] ← tmp
+            FinSi
+        FinPour
+    FinPour
+
+    // Affichage du tableau trié
+    Pour i de 0 à N-1 Faire
+        Ecrire Tableau[i]
+    FinPour
+Fin

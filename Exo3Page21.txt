@@ -1,0 +1,14 @@
+Variables
+    T : tableau[1..12, 1..8] d'entiers
+    i, j, max : entiers
+Début
+    max ← T[1, 1]
+    Pour i de 1 à 12 Faire
+        Pour j de 1 à 8 Faire
+            Si T[i, j] > max Alors
+                max ← T[i, j]
+            FinSi
+        FinPour
+    FinPour
+    Ecrire "La plus grande valeur est : ", max
+Fin

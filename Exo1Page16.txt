@@ -1,0 +1,44 @@
+Variables
+    Tableau : tableau d'entiers
+    N, i, j, tmp, Min, Max, X, TousConsecutifs, Trouvé, Debut, Fin, Milieu : entiers
+Début
+    // Saisie du nombre de valeurs
+    Ecrire "Combien de valeurs voulez-vous saisir ?"
+    Lire N
+    Si N < 2 Alors
+        Ecrire "Nombre de valeurs invalide."
+        Fin
+    FinSi
+    // Saisie des valeurs dans le tableau
+    Pour i de 0 à N-1 Faire
+        Ecrire "Entrez la valeur ", i+1
+        Lire Tableau[i]
+    FinPour
+
+    // Tri par insertion
+    Pour i de 1 à N-1 Faire
+        tmp ← Tableau[i]
+        j ← i-1
+        TantQue j >= 0 ET Tableau[j] > tmp Faire
+            Tableau[j+1] ← Tableau[j]
+            j ← j-1
+        FinTantQue
+        Tableau[j+1] ← tmp
+    FinPour
+
+    // Vérification de la consécutivité (comparaison directe)
+    TousConsecutifs ← Vrai
+    Pour i de 1 à N-1 Faire
+        Si Tableau[i] <> Tableau[i-1] + 1 Alors
+            TousConsecutifs ← Faux
+            SortirPour
+        FinSi
+    FinPour
+
+    // Affichage du résultat
+    Si TousConsecutifs Alors
+        Ecrire "Tous les éléments du tableau sont consécutifs."
+    Sinon
+        Ecrire "Les éléments du tableau ne sont pas tous consécutifs."
+    FinSi
+Fin

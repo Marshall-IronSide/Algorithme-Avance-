@@ -1,0 +1,23 @@
+Variables
+    Tableau : tableau d'entiers
+    N, i, tmp : entiers
+Début
+    Ecrire "Combien de valeurs voulez-vous saisir ?"
+    Lire N
+    Pour i de 0 à N-1 Faire
+        Ecrire "Entrez la valeur ", i+1
+        Lire Tableau[i]
+    FinPour
+
+    // Inversion du tableau
+    Pour i de 0 à (N div 2) - 1 Faire
+        tmp ← Tableau[i]
+        Tableau[i] ← Tableau[N-1-i]
+        Tableau[N-1-i] ← tmp
+    FinPour
+
+    // Affichage du tableau inversé
+    Pour i de 0 à N-1 Faire
+        Ecrire Tableau[i]
+    FinPour
+Fin

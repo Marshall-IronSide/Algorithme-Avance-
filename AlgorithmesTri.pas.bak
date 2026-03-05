@@ -1,4 +1,4 @@
-﻿  program AlgorithmesTri;
+  program AlgorithmesTri;
 uses wincrt;
 
 const
@@ -220,3 +220,4 @@ begin
     
   until choix = 0;
 end.
+
