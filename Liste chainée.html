@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listes Chaînées — Insertion</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232840;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --text2: #8a8fa8;
+    --text3: #555c78;
+    --blue: #4f8ef7;
+    --blue-dim: rgba(79,142,247,0.12);
+    --blue-glow: rgba(79,142,247,0.25);
+    --teal: #2dd4a0;
+    --teal-dim: rgba(45,212,160,0.12);
+    --amber: #f4a93c;
+    --amber-dim: rgba(244,169,60,0.12);
+    --green: #2dd4a0;
+    --green-dim: rgba(45,212,160,0.15);
+    --new-node: #2dd4a0;
+    --font-main: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --radius: 6px;
+    --radius-lg: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-main);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* === HEADER === */
+  header {
+    padding: 2.5rem 2.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: -40px;
+    width: 400px; height: 260px;
+    background: radial-gradient(ellipse, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--blue);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  h1 span { font-weight: 600; color: var(--blue); }
+  .header-sub {
+    margin-top: 0.4rem;
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 300;
+  }
+
+  /* === LAYOUT === */
+  main {
+    padding: 2rem 2.5rem;
+    max-width: 1100px;
+  }
+
+  /* === SECTIONS === */
+  .section {
+    margin-bottom: 3rem;
+    animation: fadeUp 0.5s ease both;
+  }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.12s; }
+  .section:nth-child(3) { animation-delay: 0.19s; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .label-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(79,142,247,0.2); }
+  .label-teal { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(45,212,160,0.2); }
+  .label-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(244,169,60,0.2); }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* === INNER LAYOUT: algo + visual side by side === */
+  .section-body {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 680px) {
+    .section-body { grid-template-columns: 1fr; }
+    main { padding: 1.5rem; }
+    header { padding: 1.5rem; }
+  }
+
+  /* === ALGO BOX === */
+  .algo-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 2;
+    color: var(--text2);
+  }
+  .algo-box .kw { color: var(--blue); }
+  .algo-box .val { color: var(--amber); }
+  .algo-box .op { color: var(--teal); }
+  .algo-box .cmt { color: var(--text3); font-style: italic; }
+  .algo-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.03em;
+  }
+
+  /* === VISUAL PANEL === */
+  .visual-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .controls label {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+  }
+  input[type=number] {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 5px 10px;
+    width: 64px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type=number]:focus { border-color: var(--blue); }
+  button {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--surface3); border-color: var(--border2); }
+  button.primary-blue { border-color: rgba(79,142,247,0.35); color: var(--blue); }
+  button.primary-blue:hover { background: var(--blue-dim); }
+  button.primary-teal { border-color: rgba(45,212,160,0.35); color: var(--teal); }
+  button.primary-teal:hover { background: var(--teal-dim); }
+  button.primary-amber { border-color: rgba(244,169,60,0.35); color: var(--amber); }
+  button.primary-amber:hover { background: var(--amber-dim); }
+  button.reset { color: var(--text3); font-size: 11px; }
+  button.reset:hover { color: var(--text2); }
+
+  /* === LIST DISPLAY === */
+  .list-canvas {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px 0 12px;
+    min-height: 80px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .node {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-width: 90px;
+    background: var(--surface2);
+    transition: border-color 0.3s;
+  }
+  .node.is-new {
+    border-color: var(--new-node);
+    animation: nodeIn 0.4s cubic-bezier(.3,1.5,.5,1) both;
+  }
+  @keyframes nodeIn {
+    from { opacity: 0; transform: scale(0.6) translateY(-10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .node-field {
+    padding: 8px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-around;
+  }
+  .node-field span { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .node-val-cell {
+    padding: 9px 8px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+  }
+  .node.is-new .node-val-cell { color: var(--new-node); }
+
+  .node-ptr-cell {
+    padding: 9px 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1.3;
+  }
+  .node-ptr-cell .ptr-label { font-size: 9px; color: var(--text3); }
+  .node-ptr-cell .ptr-val { font-size: 11px; color: var(--text2); }
+
+  .node-tag {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    text-transform: uppercase;
+  }
+  .tag-head { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(79,142,247,0.2); }
+  .tag-tail { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(244,169,60,0.2); }
+  .tag-new  { background: var(--green-dim); color: var(--green); border: 1px solid rgba(45,212,160,0.2); }
+
+  .arrow-connector {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: var(--text3);
+    font-size: 16px;
+    margin-top: -20px;
+    flex-shrink: 0;
+  }
+
+  .nil-box {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 6px 12px;
+    margin-top: -20px;
+  }
+
+  .empty-list {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text3);
+    padding: 10px 0;
+  }
+
+  /* === EXPLANATION BOX === */
+  .explain {
+    margin-top: 12px;
+    background: var(--surface2);
+    border-left: 2px solid var(--border2);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    line-height: 1.7;
+    min-height: 44px;
+    transition: border-color 0.3s;
+  }
+  .explain.active-blue  { border-color: var(--blue); }
+  .explain.active-teal  { border-color: var(--teal); }
+  .explain.active-amber { border-color: var(--amber); }
+  .explain code {
+    background: var(--surface3);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--amber);
+  }
+  .explain .op { color: var(--teal); }
+
+  /* === DIVIDER === */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 0 3rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Structures de données / Algorithmique</div>
+  <h1>Listes <span>Chaînées</span></h1>
+  <div class="header-sub">Visualisation des trois algorithmes d'insertion : tête · milieu · queue</div>
+</header>
+
+<main>
+
+  <!-- ═══ SECTION A: EN TÊTE ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-label label-blue">a) En tête</div>
+      <div class="section-title">AJOUT_TETE(tete, val)</div>
+    </div>
+    <div class="section-body">
+      <div class="algo-box">
+        <div class="algo-name">Algorithme AJOUT_TETE</div>
+        <span class="cmt">Variable</span><br>
+        &nbsp;&nbsp;m : <span class="op">^Maillon</span><br>
+        <span class="cmt">Début</span><br>
+        &nbsp;&nbsp;m ← <span class="kw">CREER_MAILLON</span>(<span class="val">val</span>)<br>
+        &nbsp;&nbsp;<span class="kw">Si</span> m ≠ NIL <span class="kw">Alors</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;m^.suivant ← <span class="op">tete</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="op">tete</span> ← m<br>
+        &nbsp;&nbsp;<span class="kw">FinSi</span><br>
+        <span class="cmt">Fin</span>
+      </div>
+      <div class="visual-panel">
+        <div class="controls">
+          <label>val</label>
+          <input type="number" id="val-tete" value="7">
+          <button class="primary-blue" onclick="insertTete()">→ Insérer en tête</button>
+          <button class="reset" onclick="resetTete()">Réinitialiser</button>
+        </div>
+        <div class="list-canvas" id="canvas-tete"></div>
+        <div class="explain" id="explain-tete">
+          Liste vide. Entrez une valeur et cliquez sur "Insérer en tête".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION B: AU MILIEU ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-label label-teal">b) Au milieu</div>
+      <div class="section-title">AJOUT_MILIEU(pred, val)</div>
+    </div>
+    <div class="section-body">
+      <div class="algo-box">
+        <div class="algo-name">Algorithme AJOUT_MILIEU</div>
+        <span class="cmt">Variable</span><br>
+        &nbsp;&nbsp;m : <span class="op">^Maillon</span><br>
+        <span class="cmt">Début</span><br>
+        &nbsp;&nbsp;m ← <span class="kw">CREER_MAILLON</span>(<span class="val">val</span>)<br>
+        &nbsp;&nbsp;<span class="kw">Si</span> m ≠ NIL <span class="kw">Alors</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;m^.suivant ← <span class="op">pred^.suivant</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="op">pred^.suivant</span> ← m<br>
+        &nbsp;&nbsp;<span class="kw">FinSi</span><br>
+        <span class="cmt">Fin</span>
+      </div>
+      <div class="visual-panel">
+        <div class="controls">
+          <label>val</label>
+          <input type="number" id="val-milieu" value="99">
+          <label>après pos.</label>
+          <input type="number" id="pos-milieu" value="1" min="1" style="width:52px">
+          <button class="primary-teal" onclick="insertMilieu()">→ Insérer au milieu</button>
+          <button class="reset" onclick="resetMilieu()">Réinitialiser</button>
+        </div>
+        <div class="list-canvas" id="canvas-milieu"></div>
+        <div class="explain" id="explain-milieu">
+          Liste initiale [10 → 20 → 30]. Choisissez la position du prédécesseur.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION C: EN QUEUE ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-label label-amber">c) En queue</div>
+      <div class="section-title">AJOUT_QUEUE(q, val)</div>
+    </div>
+    <div class="section-body">
+      <div class="algo-box">
+        <div class="algo-name">Algorithme AJOUT_QUEUE</div>
+        <span class="cmt">Variable</span><br>
+        &nbsp;&nbsp;m : <span class="op">^Maillon</span><br>
+        <span class="cmt">Début</span><br>
+        &nbsp;&nbsp;m ← <span class="kw">CREER_MAILLON</span>(<span class="val">val</span>)<br>
+        &nbsp;&nbsp;<span class="kw">Si</span> m ≠ NIL <span class="kw">Alors</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;m^.suivant ← <span class="op">NIL</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="op">q^.suivant</span> ← m<br>
+        &nbsp;&nbsp;<span class="kw">FinSi</span><br>
+        <span class="cmt">Fin</span>
+      </div>
+      <div class="visual-panel">
+        <div class="controls">
+          <label>val</label>
+          <input type="number" id="val-queue" value="42">
+          <button class="primary-amber" onclick="insertQueue()">→ Insérer en queue</button>
+          <button class="reset" onclick="resetQueue()">Réinitialiser</button>
+        </div>
+        <div class="list-canvas" id="canvas-queue"></div>
+        <div class="explain" id="explain-queue">
+          Liste vide. Entrez une valeur et cliquez sur "Insérer en queue".
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let listeTete   = [];
+  let listeMilieu = [10, 20, 30];
+  let listeQueue  = [];
+
+  function renderList(canvasId, list, newIdx, showHead, showTail) {
+    const canvas = document.getElementById(canvasId);
+    canvas.innerHTML = '';
+
+    if (list.length === 0) {
+      const msg = document.createElement('div');
+      msg.className = 'empty-list';
+      msg.textContent = 'tete → NIL';
+      canvas.appendChild(msg);
+      return;
+    }
+
+    list.forEach((val, i) => {
+      const wrap = document.createElement('div');
+      wrap.style.display = 'flex';
+      wrap.style.alignItems = 'center';
+      wrap.style.gap = '0';
+
+      const nodeWrap = document.createElement('div');
+      nodeWrap.className = 'node-wrapper';
+
+      // Tags above
+      const tagRow = document.createElement('div');
+      tagRow.style.display = 'flex';
+      tagRow.style.gap = '4px';
+      tagRow.style.marginBottom = '4px';
+      tagRow.style.minHeight = '18px';
+
+      if (i === 0 && showHead) {
+        const t = document.createElement('span');
+        t.className = 'node-tag tag-head';
+        t.textContent = 'tete';
+        tagRow.appendChild(t);
+      }
+      if (i === list.length - 1 && showTail) {
+        const t = document.createElement('span');
+        t.className = 'node-tag tag-tail';
+        t.textContent = 'queue';
+        tagRow.appendChild(t);
+      }
+      if (i === newIdx) {
+        const t = document.createElement('span');
+        t.className = 'node-tag tag-new';
+        t.textContent = 'new';
+        tagRow.appendChild(t);
+      }
+      nodeWrap.appendChild(tagRow);
+
+      // Node card
+      const node = document.createElement('div');
+      node.className = 'node' + (i === newIdx ? ' is-new' : '');
+
+      // Header row: field labels
+      const fieldRow = document.createElement('div');
+      fieldRow.className = 'node-field';
+      fieldRow.innerHTML = '<span>val</span><span>suivant</span>';
+      node.appendChild(fieldRow);
+
+      // Data row
+      const valCell = document.createElement('div');
+      valCell.className = 'node-val-cell';
+      valCell.textContent = val;
+      node.appendChild(valCell);
+
+      const ptrCell = document.createElement('div');
+      ptrCell.className = 'node-ptr-cell';
+      const ptrVal = document.createElement('span');
+      ptrVal.className = 'ptr-val';
+      ptrVal.textContent = i < list.length - 1 ? '→' : 'NIL';
+      ptrCell.appendChild(ptrVal);
+      node.appendChild(ptrCell);
+
+      nodeWrap.appendChild(node);
+      wrap.appendChild(nodeWrap);
+
+      // Connector arrow
+      if (i < list.length - 1) {
+        const arr = document.createElement('div');
+        arr.className = 'arrow-connector';
+        arr.textContent = '→';
+        wrap.appendChild(arr);
+      } else {
+        const arr = document.createElement('div');
+        arr.className = 'arrow-connector';
+        arr.textContent = '→';
+        wrap.appendChild(arr);
+        const nil = document.createElement('div');
+        nil.className = 'nil-box';
+        nil.textContent = 'NIL';
+        wrap.appendChild(nil);
+      }
+
+      canvas.appendChild(wrap);
+    });
+  }
+
+  // ─── TETE ───
+  function insertTete() {
+    const val = parseInt(document.getElementById('val-tete').value) || 0;
+    listeTete = [val, ...listeTete];
+    renderList('canvas-tete', listeTete, 0, true, false);
+    const exp = document.getElementById('explain-tete');
+    exp.className = 'explain active-blue';
+    exp.innerHTML = `Nouveau maillon <code>${val}</code> créé. <span class="op">m^.suivant ← tete</span> (pointe vers l'ancien premier), puis <span class="op">tete ← m</span>. Le maillon ${val} est maintenant la tête.`;
+  }
+  function resetTete() {
+    listeTete = [];
+    renderList('canvas-tete', listeTete, -1, true, false);
+    const exp = document.getElementById('explain-tete');
+    exp.className = 'explain';
+    exp.textContent = 'Liste réinitialisée. Entrez une valeur et cliquez sur "Insérer en tête".';
+  }
+
+  // ─── MILIEU ───
+  function insertMilieu() {
+    if (listeMilieu.length === 0) listeMilieu = [10, 20, 30];
+    const val = parseInt(document.getElementById('val-milieu').value) || 0;
+    let pos = parseInt(document.getElementById('pos-milieu').value) || 1;
+    pos = Math.max(1, Math.min(pos, listeMilieu.length));
+    listeMilieu = [...listeMilieu.slice(0, pos), val, ...listeMilieu.slice(pos)];
+    renderList('canvas-milieu', listeMilieu, pos, true, false);
+    const exp = document.getElementById('explain-milieu');
+    exp.className = 'explain active-teal';
+    exp.innerHTML = `Prédécesseur = position ${pos}. <span class="op">m^.suivant ← pred^.suivant</span> (hérite du lien), puis <span class="op">pred^.suivant ← m</span>. Le maillon <code>${val}</code> s'insère entre pred et son ancien successeur.`;
+  }
+  function resetMilieu() {
+    listeMilieu = [10, 20, 30];
+    renderList('canvas-milieu', listeMilieu, -1, true, false);
+    const exp = document.getElementById('explain-milieu');
+    exp.className = 'explain';
+    exp.textContent = 'Liste réinitialisée à [10 → 20 → 30]. Choisissez la position du prédécesseur.';
+  }
+
+  // ─── QUEUE ───
+  function insertQueue() {
+    const val = parseInt(document.getElementById('val-queue').value) || 0;
+    const newIdx = listeQueue.length;
+    listeQueue = [...listeQueue, val];
+    renderList('canvas-queue', listeQueue, newIdx, true, true);
+    const exp = document.getElementById('explain-queue');
+    exp.className = 'explain active-amber';
+    exp.innerHTML = `Nouveau maillon <code>${val}</code> créé. <span class="op">m^.suivant ← NIL</span> (fin de liste), puis <span class="op">q^.suivant ← m</span>. Le pointeur queue peut maintenant être mis à jour vers ${val}.`;
+  }
+  function resetQueue() {
+    listeQueue = [];
+    renderList('canvas-queue', listeQueue, -1, true, true);
+    const exp = document.getElementById('explain-queue');
+    exp.className = 'explain';
+    exp.textContent = 'Liste réinitialisée. Entrez une valeur et cliquez sur "Insérer en queue".';
+  }
+
+  // ─── INIT ───
+  renderList('canvas-tete',   listeTete,   -1, true, false);
+  renderList('canvas-milieu', listeMilieu, -1, true, false);
+  renderList('canvas-queue',  listeQueue,  -1, true, true);
+</script>
+</body>
+</html>
